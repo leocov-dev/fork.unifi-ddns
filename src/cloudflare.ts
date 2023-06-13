@@ -8,51 +8,61 @@ export class Cloudflare {
         this.token = options.token;
     }
 
-    async findZone(name: string) {
+    async findZone(name: string): Promise<CloudflareRecord> {
         const response = await this._fetchWithToken(`zones?name=${name}`);
         const body = await response.json<CloudflareResponse>();
+
         if (!body.success || body.result.length === 0) {
             throw new CloudflareApiException(`Failed to find zone '${name}'`);
         }
+
         return body.result[0];
     }
 
-    async findRecord(zone: CloudflareRecord, name: string) {
+    async findRecord(zone: CloudflareRecord, name: string): Promise<CloudflareRecord> {
         const response = await this._fetchWithToken(`zones/${zone.id}/dns_records?name=${name}`);
         const body = await response.json<CloudflareResponse>();
+
         if (!body.success || body.result.length === 0) {
             throw new CloudflareApiException(`Failed to find dns record '${name}'`);
         }
+
         return body.result[0];
     }
 
-    async updateRecord(record: CloudflareRecord, value: string) {
+    async updateRecord(record: CloudflareRecord, targetIp: string): Promise<CloudflareRecord> {
         /**
          * https://developers.cloudflare.com/api/operations/dns-records-for-a-zone-update-dns-record
          */
-        record.content = value;
+        record.content = targetIp;
         record.comment = `unifi-ddns: ${new Date().toISOString()}`;
 
         console.log(`updating record: ${record}`);
 
-        const response = await this._fetchWithToken(`zones/${record.zone_id}/dns_records/${record.id}`, {
-            method: "PUT",
-            body: JSON.stringify(record),
-        });
+        const response = await this._fetchWithToken(
+            `zones/${record.zone_id}/dns_records/${record.id}`,
+            {
+                method: "PUT",
+                body: JSON.stringify(record),
+            },
+        );
+
         const body = await response.json<CloudflareResponse>();
+
         if (!body.success) {
             throw new CloudflareApiException("Failed to update dns record");
         }
+
         return body.result[0];
     }
 
     private async _fetchWithToken(endpoint: string, options: RequestInit = {}): Promise<Response> {
-        const url = `${this.cloudflare_url}/${endpoint}`;
         options.headers = {
             ...options.headers,
             "Content-Type": "application/json",
             "Authorization": `Bearer ${this.token}`,
         };
-        return fetch(url, options);
+
+        return fetch(`${this.cloudflare_url}/${endpoint}`, options);
     }
 }
