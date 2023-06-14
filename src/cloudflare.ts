@@ -1,4 +1,5 @@
 import {CloudflareApiException} from "./errors";
+import {name, version} from "./../package.json"
 
 export class Cloudflare {
     private cloudflare_url: string = "https://api.cloudflare.com/client/v4";
@@ -35,9 +36,9 @@ export class Cloudflare {
          * https://developers.cloudflare.com/api/operations/dns-records-for-a-zone-update-dns-record
          */
         record.content = targetIp;
-        record.comment = `unifi-ddns: ${new Date().toISOString()}`;
+        record.comment = `${name}<${version}> ${new Date().toISOString()}`;
 
-        console.log(`updating record: ${record}`);
+        console.log(`updating record: ${JSON.stringify(record)}`);
 
         const response = await this._fetchWithToken(
             `zones/${record.zone_id}/dns_records/${record.id}`,
