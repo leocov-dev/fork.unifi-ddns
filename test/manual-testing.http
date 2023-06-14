@@ -1,5 +1,5 @@
 ### Update A Record
-# response should be 200, body: "good"
+# response should be 200
 https://unifi-cloudflare-ddns.{{workerDomain}}.workers.dev/update
     ?ip={{ip}}
     &hostname={{hostname}}
@@ -7,7 +7,7 @@ Authorization: Basic {{username}} {{password}}
 
 
 ### No Auth Test
-# response should be 200, body: "good"
+# will fail with bad request error
 https://unifi-cloudflare-ddns.{{workerDomain}}.workers.dev/update
     ?ip={{ip}}
     &hostname={{hostname}}
