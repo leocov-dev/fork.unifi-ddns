@@ -1,4 +1,4 @@
-import {CloudflareApiException} from "./errors";
+import {CloudflareApiException, NotFoundException} from "./errors";
 import {name, version} from "./../package.json"
 
 export class Cloudflare {
@@ -14,7 +14,7 @@ export class Cloudflare {
         const body = await response.json<CloudflareResponse>();
 
         if (!body.success || body.result.length === 0) {
-            throw new CloudflareApiException(`Failed to find zone '${name}'`);
+            throw new NotFoundException(`Failed to find zone '${name}'`);
         }
 
         return body.result[0];
@@ -25,7 +25,7 @@ export class Cloudflare {
         const body = await response.json<CloudflareResponse>();
 
         if (!body.success || body.result.length === 0) {
-            throw new CloudflareApiException(`Failed to find dns record '${name}'`);
+            throw new NotFoundException(`Failed to find dns record '${name}'`);
         }
 
         return body.result[0];

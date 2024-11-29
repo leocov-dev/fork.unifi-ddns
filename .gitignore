@@ -4,3 +4,4 @@ node_modules
 .idea/
 
 *.private.env.json
+.DS_Store

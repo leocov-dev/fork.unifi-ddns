@@ -42,6 +42,11 @@ export class BadRequestException extends BaseException {
     readonly statusText: string = "Bad Request";
 }
 
+export class NotFoundException extends BaseException {
+    readonly status: number = 400;
+    readonly statusText: string = "Not Found";
+}
+
 export class CloudflareApiException extends BaseException {
     readonly status: number = 500;
     readonly statusText: string = "Internal Server Error";

@@ -1,12 +1,12 @@
-import {BadRequestException} from "./errors";
+import {BadRequestException, NotFoundException} from "./errors";
 import {Cloudflare} from "./cloudflare";
 import {requireHttps, verifyParameters} from "./validation";
 import {parseBasicAuth} from "./auth";
 
 async function informAPI(
     url: URL,
-    name: string,
-    token: string,
+    zoneName: string,
+    apiToken: string,
 ): Promise<Response> {
     const hostnames = (url.searchParams.get("hostname") || "").split(",");
     const ip = url.searchParams.get("ip") || url.searchParams.get("myip");
@@ -14,22 +14,29 @@ async function informAPI(
     if (!ip) {
         throw new BadRequestException("Unable to parse IP address")
     }
+    if (!hostnames) {
+        throw new BadRequestException("Unable to parse hostnames")
+    }
 
-    const cloudflare = new Cloudflare({token});
+    const cloudflare = new Cloudflare({token: apiToken});
 
-    const zone = await cloudflare.findZone(name);
+    const zone = await cloudflare.findZone(zoneName);
     for (const hostname of hostnames) {
         const record = await cloudflare.findRecord(zone, hostname);
         await cloudflare.updateRecord(record, ip);
     }
 
-    return Response.json({status: "good"}, {
-        status: 200,
-        headers: {
-            "Content-Type": "application/json;charset=utf-8",
-            "Cache-Control": "no-store",
+    return Response.json(
+        {
+            action: `Updated ${zoneName} - ${hostnames}`
         },
-    });
+        {
+            status: 200,
+            headers: {
+                "Content-Type": "application/json;charset=utf-8",
+                "Cache-Control": "no-store",
+            },
+        });
 }
 
 
@@ -43,7 +50,7 @@ export async function handler(request: Request): Promise<Response> {
     }
 
     if (url.pathname !== "/nic/update" && url.pathname !== "/update") {
-        return new Response("Not Found.", {status: 404});
+        throw new NotFoundException()
     }
 
     if (!request.headers.has("Authorization")) {
