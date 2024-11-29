@@ -1,5 +1,5 @@
-import {BaseException} from "./errors";
-import {handler} from "./handler";
+import {BaseException} from "./components/errors";
+import {handler} from "./components/handler";
 
 
 export default {
