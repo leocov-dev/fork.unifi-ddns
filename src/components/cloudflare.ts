@@ -1,5 +1,5 @@
 import {CloudflareApiException, NotFoundException} from "./errors";
-import {name, version} from "./../package.json"
+import {name, version} from "./../../package.json"
 
 export class Cloudflare {
     private cloudflare_url: string = "https://api.cloudflare.com/client/v4";
