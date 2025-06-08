@@ -23,7 +23,7 @@ async function informAPI(
     const zone = await cloudflare.findZone(zoneName);
     for (const hostname of hostnames) {
         const record = await cloudflare.findRecord(zone, hostname);
-        await cloudflare.updateRecord(record, ip);
+        await cloudflare.updateRecord(zone, record, ip);
     }
 
     return Response.json(

@@ -4,7 +4,6 @@ interface CloudflareOptions {
 
 interface CloudflareRecord {
     id: string
-    zone_id: string
     name: string
     type: string
     proxied: boolean

@@ -31,7 +31,7 @@ export class Cloudflare {
         return body.result[0];
     }
 
-    async updateRecord(record: CloudflareRecord, targetIp: string): Promise<CloudflareRecord> {
+    async updateRecord(zone: CloudflareRecord, record: CloudflareRecord, targetIp: string): Promise<CloudflareRecord> {
         /**
          * https://developers.cloudflare.com/api/operations/dns-records-for-a-zone-update-dns-record
          */
@@ -41,7 +41,7 @@ export class Cloudflare {
         console.log(`updating record: ${JSON.stringify(record)}`);
 
         const response = await this._fetchWithToken(
-            `zones/${record.zone_id}/dns_records/${record.id}`,
+            `zones/${zone.id}/dns_records/${record.id}`,
             {
                 method: "PUT",
                 body: JSON.stringify(record),
@@ -51,6 +51,7 @@ export class Cloudflare {
         const body = await response.json<CloudflareResponse>();
 
         if (!body.success) {
+            console.error(body);
             throw new CloudflareApiException("Failed to update dns record");
         }
 
